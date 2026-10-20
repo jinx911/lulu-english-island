@@ -50,7 +50,16 @@ if("speechSynthesis" in window){
   refreshMacVoice();
   speechSynthesis.addEventListener("voiceschanged",refreshMacVoice);
 }
+let activeAudio = null;
 function speak(text,id){
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  if(activeAudio){activeAudio.pause();activeAudio=null;}
+  const audio=new Audio("./audio/"+id+".m4a");
+  activeAudio=audio;
+  audio.onerror=()=>speakFallback(text);
+  audio.play().catch(()=>{});
+}
+function speakFallback(text){
   if(!("speechSynthesis" in window)) return;
   refreshMacVoice();
   speechSynthesis.cancel();
