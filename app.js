@@ -39,12 +39,25 @@ function fullLine(unit,word){
 }
 function lineAudioId(unit,word){return ["color","animal","fruit","action"][unit]+"_"+word;}
 function fixedAudioId(unit){return ["color_q","animal_q","fruit_a","action_q"][unit];}
+let macVoice = null;
+function refreshMacVoice(){
+  if(!("speechSynthesis" in window)) return;
+  macVoice = speechSynthesis.getVoices().find(voice =>
+    voice.lang.toLowerCase().replace("_","-") === "en-us" && /^Samantha(?:\s|$)/i.test(voice.name)
+  ) || null;
+}
+if("speechSynthesis" in window){
+  refreshMacVoice();
+  speechSynthesis.addEventListener("voiceschanged",refreshMacVoice);
+}
 function speak(text,id){
   if(!("speechSynthesis" in window)) return;
+  refreshMacVoice();
   speechSynthesis.cancel();
   const utterance=new SpeechSynthesisUtterance(text);
   utterance.lang="en-US";
   utterance.rate=.82;
+  if(macVoice) utterance.voice=macVoice;
   speechSynthesis.speak(utterance);
 }
 function visual(word){
